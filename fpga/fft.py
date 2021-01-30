@@ -70,6 +70,15 @@ class Butterfly(Elaboratable):
         sync3 = ClockDomain("sync3")
         sync4 = ClockDomain("sync4")
 
+        sync1.clk = clk_phase.clka
+        sync2.clk = clk_phase.clkb
+        sync3.clk = clk_phase.clkc
+        sync4.clk = clk_phase.clkd
+
+        # TODO: tie resets together?
+
+        m.domains += [sync1, sync2, sync3, sync4]
+
         a_tmp_real = Signal(signed(42))
         a_tmp_imag = Signal(signed(42))
         b_tmp_real = Signal(signed(42))
@@ -78,19 +87,42 @@ class Butterfly(Elaboratable):
         # maybe this requires more intelligent clocking?
         # also I was tired when doing the bitshifts and they're probably wrong
         # should test complex multiplier
-        m.d.sync += a_tmp_real.eq(self.a_real)
-        m.d.sync += a_tmp_imag.eq(self.a_imag)
-        m.d.sync += b_tmp_real.eq((self.b_real * self.tw_real) - (self.b_imag * self.tw_imag))
-        m.d.sync += b_tmp_imag.eq((self.b_real * self.tw_imag) + (self.b_imag * self.tw_real))
+        m.d.sync4 += a_tmp_real.eq(self.a_real)
+        m.d.sync4 += a_tmp_imag.eq(self.a_imag)
+        m.d.sync2 += b_tmp_real.eq((self.b_real * self.tw_real) - (self.b_imag * self.tw_imag))
+        m.d.sync2 += b_tmp_imag.eq((self.b_real * self.tw_imag) + (self.b_imag * self.tw_real))
 
-        m.d.sync += self.a_prime_real.eq(a_tmp_real + b_tmp_real[20:41])
-        m.d.sync += self.a_prime_imag.eq(a_tmp_imag + b_tmp_imag[20:41])
-        m.d.sync += self.b_prime_real.eq(a_tmp_real - b_tmp_real[20:41])
-        m.d.sync += self.b_prime_imag.eq(a_tmp_imag - b_tmp_imag[20:41])
+        m.d.sync1 += self.a_prime_real.eq(a_tmp_real + b_tmp_real[20:41])
+        m.d.sync1 += self.a_prime_imag.eq(a_tmp_imag + b_tmp_imag[20:41])
+        m.d.sync1 += self.b_prime_real.eq(a_tmp_real - b_tmp_real[20:41])
+        m.d.sync1 += self.b_prime_imag.eq(a_tmp_imag - b_tmp_imag[20:41])
+
+        return m
+
+class FFT(Elaboratable):
+    def __init__(self):
+        pass
+
+    def elaborate(self, platform: Platform) -> Module:
+        m = Module()
+        butterfly = Butterfly()
+
+        m.submodules += butterfly
+
+        reg = Signal(12)
+
+        m.d.sync += reg.eq(reg + 1)
+        m.d.comb += butterfly.a_real.eq(reg)
+        m.d.comb += butterfly.a_imag.eq(-reg)
+        m.d.comb += butterfly.b_real.eq(-reg)
+        m.d.comb += butterfly.b_imag.eq(reg)
+
+        m.d.comb += butterfly.tw_real.eq(1)
+        m.d.comb += butterfly.tw_imag.eq(1)
 
         return m
 
 if __name__ == "__main__":
-    top = Butterfly()
+    top = FFT()
 
-    main(top, ports=(top.a_real,))
+    main(top)
