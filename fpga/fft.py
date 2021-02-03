@@ -61,6 +61,14 @@ class Butterfly(Elaboratable):
         self.b_prime_real = Signal(signed(21))
         self.b_prime_imag = Signal(signed(21))
 
+    def ports(self):
+        return [self.start, self.done,
+                self.a_real, self.a_imag,
+                self.b_real, self.b_imag,
+                self.tw_real, self.tw_imag,
+                self.a_prime_real, self.a_prime_imag,
+                self.b_prime_real, self.b_prime_imag]
+
     def elaborate(self, platform: Platform) -> Module:
         m = Module()
 
