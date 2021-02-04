@@ -110,13 +110,12 @@ class Butterfly(Elaboratable):
         m.d.sync1 += b_tmp_real.eq((self.b_real * self.tw_real) - (self.b_imag * self.tw_imag))
         m.d.sync1 += b_tmp_imag.eq((self.b_real * self.tw_imag) + (self.b_imag * self.tw_real))
 
-        # paper claims this should be 20:41 but that feels wrong
-        # doing that multiples b_tmp by 2
+        # paper claims this should be 20:41 and while that feels wrong it appears to be correct
         # if FFT's look like garbage consider changing
-        m.d.sync3 += self.a_prime_real.eq(a_tmp_real + b_tmp_real[21:])
-        m.d.sync3 += self.a_prime_imag.eq(a_tmp_imag + b_tmp_imag[21:])
-        m.d.sync3 += self.b_prime_real.eq(a_tmp_real - b_tmp_real[21:])
-        m.d.sync3 += self.b_prime_imag.eq(a_tmp_imag - b_tmp_imag[21:])
+        m.d.sync3 += self.a_prime_real.eq(a_tmp_real + b_tmp_real[20:41])
+        m.d.sync3 += self.a_prime_imag.eq(a_tmp_imag + b_tmp_imag[20:41])
+        m.d.sync3 += self.b_prime_real.eq(a_tmp_real - b_tmp_real[20:41])
+        m.d.sync3 += self.b_prime_imag.eq(a_tmp_imag - b_tmp_imag[20:41])
 
         return m
 
