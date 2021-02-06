@@ -26,10 +26,10 @@ if __name__ == "__main__":
         N = 21
 
         for i in range(100):
-            ar = randrange(2**N) - (2**(N-1))
-            ai = randrange(2**N) - (2**(N-1))
-            br = randrange(2**N) - (2**(N-1))
-            bi = randrange(2**N) - (2**(N-1))
+            ar = randrange(2**(N-1)) - (2**(N-2))
+            ai = randrange(2**(N-1)) - (2**(N-2))
+            br = randrange(2**(N-1)) - (2**(N-2))
+            bi = randrange(2**(N-1)) - (2**(N-2))
             yield butterfly.a_real.eq(ar)
             yield butterfly.a_imag.eq(ai)
             yield butterfly.b_real.eq(br)
@@ -48,7 +48,10 @@ if __name__ == "__main__":
             wanti = ai + ((tw_real*bi) + (tw_imag*br)) // (2**(N-1))
 
             if gotr != wantr or goti != wanti:
-                print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j; {} = {} ({}), {} = {} ({})'.format(ar, ai, br, bi, tw_real, tw_imag, gotr, wantr, gotr==wantr, goti, wanti, goti==wanti))
+                print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
+                      'got a\' = {} + {}j, expected a\' = {} + {}j'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti))
+                print()
                 failed += 1
 
             gotr = yield(butterfly.b_prime_real)
@@ -57,7 +60,10 @@ if __name__ == "__main__":
             wanti = ai - ((tw_real*bi) + (tw_imag*br)) // (2**(N-1))
 
             if gotr != wantr or goti != wanti:
-                print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j; {} = {} ({}), {} = {} ({})'.format(ar, ai, br, bi, tw_real, tw_imag, gotr, wantr, gotr==wantr, goti, wanti, goti==wanti))
+                print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
+                      'got b\' = {} + {}j, expected b\' = {} + {}j'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti))
+                print()
                 failed += 1
 
             tests += 2
