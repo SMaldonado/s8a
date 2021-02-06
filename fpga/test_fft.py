@@ -13,7 +13,9 @@ if __name__ == "__main__":
     sim.add_clock(1e-6) # important
 
     def test_butterfly():
-        tw_max = 2**20 - 1
+        N = 21
+
+        tw_max = 2**(N-1) - 1
         tw_real = tw_max
         tw_imag = tw_max
         const_tw_real = Const(tw_real)
@@ -23,7 +25,6 @@ if __name__ == "__main__":
 
         failed = 0
         tests = 0
-        N = 21
 
         for i in range(100):
             ar = randrange(2**(N-1)) - (2**(N-2))
@@ -46,11 +47,14 @@ if __name__ == "__main__":
             goti = yield(butterfly.a_prime_imag)
             wantr = ar + ((tw_real*br) - (tw_imag*bi)) // (2**(N-1))
             wanti = ai + ((tw_real*bi) + (tw_imag*br)) // (2**(N-1))
+            b_tmp_real = yield(butterfly.b_tmp_real)
+            b_tmp_imag = yield(butterfly.b_tmp_imag)
 
             if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
-                      'got a\' = {} + {}j, expected a\' = {} + {}j'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti))
+                      'got a\' = {} + {}j, expected a\' = {} + {}j\r\n'
+                      'b_tmp = {} + {}j'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag))
                 print()
                 failed += 1
 
@@ -61,8 +65,9 @@ if __name__ == "__main__":
 
             if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
-                      'got b\' = {} + {}j, expected b\' = {} + {}j'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti))
+                      'got b\' = {} + {}j, expected b\' = {} + {}j\r\n'
+                      'b_tmp = {} + {}j'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag))
                 print()
                 failed += 1
 
