@@ -59,6 +59,9 @@ class Butterfly(Elaboratable):
         self.b_tmp_real = Signal(signed(42))
         self.b_tmp_imag = Signal(signed(42))
 
+        self.b_tmp_real_shift = Signal(signed(21))
+        self.b_tmp_imag_shift = Signal(signed(21))
+
         self.a_prime_real = Signal(signed(21))
         self.a_prime_imag = Signal(signed(21))
         self.b_prime_real = Signal(signed(21))
@@ -112,6 +115,9 @@ class Butterfly(Elaboratable):
         # maybe this requires more intelligent clocking?
         m.d.sync1 += self.b_tmp_real.eq((self.b_real * self.tw_real) - (self.b_imag * self.tw_imag))
         m.d.sync1 += self.b_tmp_imag.eq((self.b_real * self.tw_imag) + (self.b_imag * self.tw_real))
+
+        m.d.comb += self.b_tmp_real_shift.eq(self.b_tmp_real[20:41])
+        m.d.comb += self.b_tmp_imag_shift.eq(self.b_tmp_imag[20:41])
 
         # paper claims this should be 20:41 and while that feels wrong it appears to be correct
         # if FFT's look like garbage consider changing

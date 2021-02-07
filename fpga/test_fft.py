@@ -40,8 +40,12 @@ if __name__ == "__main__":
             yield
             yield butterfly.start.eq(0)
 
-            for j in range(3):
+            for j in range(4):
                 yield
+
+            done = yield(butterfly.done)
+            if not done:
+                print('Expected done to be true; got {}'.format(done))
 
             gotr = yield(butterfly.a_prime_real)
             goti = yield(butterfly.a_prime_imag)
@@ -49,12 +53,14 @@ if __name__ == "__main__":
             wanti = ai + ((tw_real*bi) + (tw_imag*br)) // (2**(N-1))
             b_tmp_real = yield(butterfly.b_tmp_real)
             b_tmp_imag = yield(butterfly.b_tmp_imag)
+            b_tmp_real_shift = yield(butterfly.b_tmp_real_shift)
+            b_tmp_imag_shift = yield(butterfly.b_tmp_imag_shift)
 
-            if gotr != wantr or goti != wanti:
+            if True:# gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
                       'got a\' = {} + {}j, expected a\' = {} + {}j\r\n'
-                      'b_tmp = {} + {}j'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag))
+                      'b_tmp = {} + {}j ({} + {}j)'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift))
                 print()
                 failed += 1
 
@@ -66,8 +72,8 @@ if __name__ == "__main__":
             if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
                       'got b\' = {} + {}j, expected b\' = {} + {}j\r\n'
-                      'b_tmp = {} + {}j'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag))
+                      'b_tmp = {} + {}j ({} + {}j)'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift))
                 print()
                 failed += 1
 
