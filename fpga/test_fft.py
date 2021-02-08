@@ -3,6 +3,7 @@ from nmigen.sim import Simulator, Delay, Settle
 from fft import Butterfly
 
 import numpy as np
+from math import pi
 from random import randrange
 
 if __name__ == "__main__":
@@ -27,10 +28,15 @@ if __name__ == "__main__":
         tests = 0
 
         for i in range(100):
+            # produce random samples of a and b with sum of real and imaginary parts <= 2**(N-1)
+
             ar = randrange(2**(N-1)) - (2**(N-2))
-            ai = randrange(2**(N-1)) - (2**(N-2))
+            aimax = (2**(N-2)) - abs(ar)
+            ai = randrange(2*aimax) - aimax
             br = randrange(2**(N-1)) - (2**(N-2))
-            bi = randrange(2**(N-1)) - (2**(N-2))
+            bimax = (2**(N-2)) - abs(br)
+            bi = randrange(2*bimax) - bimax
+
             yield butterfly.a_real.eq(ar)
             yield butterfly.a_imag.eq(ai)
             yield butterfly.b_real.eq(br)
