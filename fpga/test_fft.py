@@ -56,11 +56,11 @@ if __name__ == "__main__":
             b_tmp_real_shift = yield(butterfly.b_tmp_real_shift)
             b_tmp_imag_shift = yield(butterfly.b_tmp_imag_shift)
 
-            if True:# gotr != wantr or goti != wanti:
+            if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
                       'got a\' = {} + {}j, expected a\' = {} + {}j\r\n'
-                      'b_tmp = {} + {}j ({} + {}j)'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift))
+                      'b_tmp = {} + {}j = {} + {}j (expected {} + {}j)'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift, br - bi, br + bi))
                 print()
                 failed += 1
 
@@ -72,8 +72,8 @@ if __name__ == "__main__":
             if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
                       'got b\' = {} + {}j, expected b\' = {} + {}j\r\n'
-                      'b_tmp = {} + {}j ({} + {}j)'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift))
+                      'b_tmp = {} + {}j = {} + {}j (expected {} + {}j)'
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift, br - bi, br + bi))
                 print()
                 failed += 1
 
