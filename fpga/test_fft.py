@@ -7,16 +7,18 @@ from math import pi
 from random import randrange
 
 if __name__ == "__main__":
+
+    k = 21
+
     m = Module()
-    m.submodules.butterfly = butterfly = Butterfly()
+    m.submodules.butterfly = butterfly = Butterfly(k)
 
     sim = Simulator(m)
     sim.add_clock(1e-6) # important
 
     def test_butterfly():
-        N = 21
 
-        tw_max = 2**(N-1) - 1
+        tw_max = 2**(k-1) - 1
         tw_real = tw_max
         tw_imag = tw_max
         const_tw_real = Const(tw_real)
@@ -30,11 +32,11 @@ if __name__ == "__main__":
         for i in range(100):
             # produce random samples of a and b with sum of real and imaginary parts <= 2**(N-1)
 
-            ar = randrange(2**(N-1)) - (2**(N-2))
-            aimax = (2**(N-2)) - abs(ar)
+            ar = randrange(2**(k-1)) - (2**(k-2))
+            aimax = (2**(k-2)) - abs(ar)
             ai = randrange(2*aimax) - aimax
-            br = randrange(2**(N-1)) - (2**(N-2))
-            bimax = (2**(N-2)) - abs(br)
+            br = randrange(2**(k-1)) - (2**(k-2))
+            bimax = (2**(k-2)) - abs(br)
             bi = randrange(2*bimax) - bimax
 
             yield butterfly.a_real.eq(ar)
@@ -55,31 +57,25 @@ if __name__ == "__main__":
 
             gotr = yield(butterfly.a_prime_real)
             goti = yield(butterfly.a_prime_imag)
-            wantr = ar + ((tw_real*br) - (tw_imag*bi)) // (2**(N-1))
-            wanti = ai + ((tw_real*bi) + (tw_imag*br)) // (2**(N-1))
-            b_tmp_real = yield(butterfly.b_tmp_real)
-            b_tmp_imag = yield(butterfly.b_tmp_imag)
-            b_tmp_real_shift = yield(butterfly.b_tmp_real_shift)
-            b_tmp_imag_shift = yield(butterfly.b_tmp_imag_shift)
+            wantr = ar + ((tw_real*br) - (tw_imag*bi)) // (2**(k-1))
+            wanti = ai + ((tw_real*bi) + (tw_imag*br)) // (2**(k-1))
 
             if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
                       'got a\' = {} + {}j, expected a\' = {} + {}j\r\n'
-                      'b_tmp = {} + {}j = {} + {}j (expected {} + {}j)'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift, br - bi, br + bi))
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti))
                 print()
                 failed += 1
 
             gotr = yield(butterfly.b_prime_real)
             goti = yield(butterfly.b_prime_imag)
-            wantr = ar - ((tw_real*br) - (tw_imag*bi)) // (2**(N-1))
-            wanti = ai - ((tw_real*bi) + (tw_imag*br)) // (2**(N-1))
+            wantr = ar - ((tw_real*br) - (tw_imag*bi)) // (2**(k-1))
+            wanti = ai - ((tw_real*bi) + (tw_imag*br)) // (2**(k-1))
 
             if gotr != wantr or goti != wanti:
                 print('Test failed for a = {} + {}j, b = {} + {}j, tw = {} + {}j;\r\n'
                       'got b\' = {} + {}j, expected b\' = {} + {}j\r\n'
-                      'b_tmp = {} + {}j = {} + {}j (expected {} + {}j)'
-                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti, b_tmp_real, b_tmp_imag, b_tmp_real_shift, b_tmp_imag_shift, br - bi, br + bi))
+                       .format(ar, ai, br, bi, tw_real, tw_imag, gotr, goti, wantr, wanti))
                 print()
                 failed += 1
 

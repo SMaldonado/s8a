@@ -43,29 +43,26 @@ from nmigen.cli import main
 #         return m
 
 class Butterfly(Elaboratable):
-    def __init__(self):
+    def __init__(self, k):
+        # k is the width of frequency domain inputs and outputs
+
+        self.k = k
 
         self.start = Signal()
         self.done = Signal()
 
-        self.a_real = Signal(signed(21))
-        self.a_imag = Signal(signed(21))
-        self.b_real = Signal(signed(21))
-        self.b_imag = Signal(signed(21))
+        self.a_real = Signal(signed(self.k))
+        self.a_imag = Signal(signed(self.k))
+        self.b_real = Signal(signed(self.k))
+        self.b_imag = Signal(signed(self.k))
 
-        self.tw_real = Signal(signed(21))
-        self.tw_imag = Signal(signed(21))
+        self.tw_real = Signal(signed(self.k))
+        self.tw_imag = Signal(signed(self.k))
 
-        self.b_tmp_real = Signal(signed(42))
-        self.b_tmp_imag = Signal(signed(42))
-
-        self.b_tmp_real_shift = Signal(signed(21))
-        self.b_tmp_imag_shift = Signal(signed(21))
-
-        self.a_prime_real = Signal(signed(21))
-        self.a_prime_imag = Signal(signed(21))
-        self.b_prime_real = Signal(signed(21))
-        self.b_prime_imag = Signal(signed(21))
+        self.a_prime_real = Signal(signed(self.k))
+        self.a_prime_imag = Signal(signed(self.k))
+        self.b_prime_real = Signal(signed(self.k))
+        self.b_prime_imag = Signal(signed(self.k))
 
     def ports(self):
         return [self.start, self.done,
@@ -104,27 +101,26 @@ class Butterfly(Elaboratable):
         m.d.comb += self.done.eq(reg[3])
 
 
-        a_tmp_real = Signal(signed(42))
-        a_tmp_imag = Signal(signed(42))
-        # b_tmp_real = Signal(signed(42))
-        # b_tmp_imag = Signal(signed(42))
+        a_tmp_real = Signal(signed(2*self.k))
+        a_tmp_imag = Signal(signed(2*self.k))
+        b_tmp_real = Signal(signed(2*self.k))
+        b_tmp_imag = Signal(signed(2*self.k))
 
         m.d.sync1 += a_tmp_real.eq(self.a_real)
         m.d.sync1 += a_tmp_imag.eq(self.a_imag)
 
-        # maybe this requires more intelligent clocking?
-        m.d.sync1 += self.b_tmp_real.eq((self.b_real * self.tw_real) - (self.b_imag * self.tw_imag))
-        m.d.sync1 += self.b_tmp_imag.eq((self.b_real * self.tw_imag) + (self.b_imag * self.tw_real))
+        # TODO: maybe this requires more intelligent clocking?
+        # i.e. multiplication on sync1 and add/subtract on sync2
+        m.d.sync1 += b_tmp_real.eq((self.b_real * self.tw_real) - (self.b_imag * self.tw_imag))
+        m.d.sync1 += b_tmp_imag.eq((self.b_real * self.tw_imag) + (self.b_imag * self.tw_real))
 
-        m.d.comb += self.b_tmp_real_shift.eq(self.b_tmp_real[20:41])
-        m.d.comb += self.b_tmp_imag_shift.eq(self.b_tmp_imag[20:41])
-
-        # paper claims this should be 20:41 and while that feels wrong it appears to be correct
+        # paper claims this should be 20:41 and while that feels wrong it appears to be correct,
+        # after doing a bunch of debug when writing the testbench for the butterfly function
         # if FFT's look like garbage consider changing
-        m.d.sync3 += self.a_prime_real.eq(a_tmp_real + self.b_tmp_real[20:41])
-        m.d.sync3 += self.a_prime_imag.eq(a_tmp_imag + self.b_tmp_imag[20:41])
-        m.d.sync3 += self.b_prime_real.eq(a_tmp_real - self.b_tmp_real[20:41])
-        m.d.sync3 += self.b_prime_imag.eq(a_tmp_imag - self.b_tmp_imag[20:41])
+        m.d.sync3 += self.a_prime_real.eq(a_tmp_real + b_tmp_real[self.k-1:(2*self.k)-1])
+        m.d.sync3 += self.a_prime_imag.eq(a_tmp_imag + b_tmp_imag[self.k-1:(2*self.k)-1])
+        m.d.sync3 += self.b_prime_real.eq(a_tmp_real - b_tmp_real[self.k-1:(2*self.k)-1])
+        m.d.sync3 += self.b_prime_imag.eq(a_tmp_imag - b_tmp_imag[self.k-1:(2*self.k)-1])
 
         return m
 
