@@ -3,6 +3,8 @@
 from nmigen import *
 from nmigen.build import Platform
 from nmigen.cli import main
+from numpy import sin, cos
+from math import pi
 
 # class ClockDivider(Elaboratable):
 #     def __init__(self):
@@ -43,21 +45,32 @@ from nmigen.cli import main
 #         return m
 
 # TODO: maybe actually store this in RAM, because as is it can take up a lot of LUTs
+# TODO: can maybe cut the memory required in half because cos is symmetric
 class TwiddleROM(Elaboratable):
     def __init__(self, k, m):
-        # k is the width of frequency domain inputs and outputs
+        # k is the width of frequency domain outputs
         # m is the number of address bits for the ROM (2**m entries)
         self.k = k
         self.m = m
         self.pts = 2**m
 
+        self.addr = Signal(unsigned(m))
+
         self.real_out = Signal(signed(self.k))
         self.imag_out = Signal(signed(self.k))
 
     def ports(self):
-        return [self.real_out, self.imag_out]
+        return [self.addr, self.real_out, self.imag_out]
 
     def elaborate(self, platform: Platform) -> Module:
+        m = Module()
+
+        rom_max = 2**(k-1) - 1
+
+        rom = Array([Const(int(rom_max * cos(pi*i/self.pts)), signed(k)) for i in range(self.pts)])
+
+        m.d.sync += self.real_out.eq(rom[addr])
+        m.d.sync += self.imag_out.eq(rom[addr]) #TODO: transform address to pull from sin table correctly
 
 
 class Butterfly(Elaboratable):
