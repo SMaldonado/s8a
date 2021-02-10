@@ -42,6 +42,24 @@ from nmigen.cli import main
 #
 #         return m
 
+# TODO: maybe actually store this in RAM, because as is it can take up a lot of LUTs
+class TwiddleROM(Elaboratable):
+    def __init__(self, k, m):
+        # k is the width of frequency domain inputs and outputs
+        # m is the number of address bits for the ROM (2**m entries)
+        self.k = k
+        self.m = m
+        self.pts = 2**m
+
+        self.real_out = Signal(signed(self.k))
+        self.imag_out = Signal(signed(self.k))
+
+    def ports(self):
+        return [self.real_out, self.imag_out]
+
+    def elaborate(self, platform: Platform) -> Module:
+
+
 class Butterfly(Elaboratable):
     def __init__(self, k):
         # k is the width of frequency domain inputs and outputs
